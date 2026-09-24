@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,7 +15,9 @@ import CustomFormField, { FormFieldType } from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 
 export const PatientForm = () => {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
@@ -26,7 +29,9 @@ export const PatientForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof UserFormValidation>) => {
+    console.log("CREATING USER");
     setIsLoading(true);
+    setErrorMessage(null);
 
     try {
       const user = {
@@ -36,20 +41,34 @@ export const PatientForm = () => {
       };
 
       const newUser = await createUser(user);
+      console.log("USER CREATED", newUser);
 
-      if (newUser) {
-        window.location.assign(`/patients/${newUser.$id}/register`);
+      if (!newUser) {
+        throw new Error("User creation returned no user.");
       }
+
+      const registerPath = `/patients/${newUser.$id}/register`;
+      console.log("REDIRECTING TO REGISTER", registerPath);
+      router.push(registerPath);
     } catch (error) {
-      console.log(error);
+      console.error("User creation failed:", error);
+      setErrorMessage(error instanceof Error ? error.message : String(error));
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("GET STARTED CLICKED");
+    void form.handleSubmit(onSubmit, (errors) => {
+      console.error("GET STARTED VALIDATION FAILED:", errors);
+    })(event);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-6">
+      <form onSubmit={handleSubmit} className="flex-1 space-y-6">
         <section className="mb-12 space-y-4">
           <h1 className="header">Hi there 👋</h1>
           <p className="text-dark-700">Get started with appointments.</p>
@@ -84,6 +103,11 @@ export const PatientForm = () => {
         />
 
         <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
+        {errorMessage && (
+          <p role="alert" className="shad-error">
+            {errorMessage}
+          </p>
+        )}
       </form>
     </Form>
   );
