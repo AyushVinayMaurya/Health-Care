@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { PatientForm } from "@/components/forms/PatientForm";
 import { PasskeyModal } from "@/components/PasskeyModal";
-import NotificationButton from "@/components/NotificationButton";
+
 import NotificationTestButton from "@/components/NotificationTestButton";
 import EnableNotificationsButton from "@/components/EnableNotificationsButton";
 
