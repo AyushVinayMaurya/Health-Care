@@ -72,7 +72,6 @@ If you're getting started and need assistance or face any bugs, join our active 
 
 👉 **File Upload Using Appwrite Storage**: Users can upload and store files securely within the app using Appwrite storage services.
 
-
 and many more, including code architecture and reusability
 
 ## <a name="quick-start">🤸 Quick Start</a>
