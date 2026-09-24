@@ -4,7 +4,6 @@ import Link from "next/link";
 import { PatientForm } from "@/components/forms/PatientForm";
 import { PasskeyModal } from "@/components/PasskeyModal";
 
-import NotificationTestButton from "@/components/NotificationTestButton";
 import EnableNotificationsButton from "@/components/EnableNotificationsButton";
 
 const Home = async ({ searchParams }: SearchParamProps) => {
@@ -27,7 +26,6 @@ const Home = async ({ searchParams }: SearchParamProps) => {
 
           <PatientForm />
 
-          <NotificationTestButton patientId="6aaf60f00036cc280eaa" />
           <EnableNotificationsButton patientId="6aaf60f00036cc280eaa" />
 
           <div className="text-14-regular mt-20 flex justify-between">
