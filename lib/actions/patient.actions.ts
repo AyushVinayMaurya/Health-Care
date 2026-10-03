@@ -29,6 +29,7 @@ export const createUser = async (user: CreateUserParams) => {
   });
 
   try {
+    console.log("APPWRITE USERS.CREATE START");
     const newuser = await users.create(
       ID.unique(),
       user.email,
@@ -37,9 +38,8 @@ export const createUser = async (user: CreateUserParams) => {
       user.name
     );
 
-    console.log("CREATE USER SUCCESS:", {
+    console.log("APPWRITE USERS.CREATE SUCCESS", {
       id: newuser.$id,
-      email: newuser.email,
     });
 
     return { success: true as const, user: toClientUser(newuser) };
@@ -60,28 +60,14 @@ export const createUser = async (user: CreateUserParams) => {
       }
     }
 
-    const response = error?.response;
-    const safeResponse =
-      typeof response === "string" ||
-      typeof response === "number" ||
-      typeof response === "boolean"
-        ? response
-        : response && typeof response === "object"
-          ? {
-              code: response.code,
-              type: response.type,
-              message: response.message,
-            }
-          : undefined;
     const errorMessage =
-      error instanceof Error ? error.message : String(error);
+      error instanceof Error ? error.message : "User creation failed";
 
     console.error("CREATE USER ACTUAL ERROR:", {
-      message: errorMessage,
+      message: error instanceof Error ? error.message : String(error),
       name: error instanceof Error ? error.name : undefined,
       code: error?.code,
       type: error?.type,
-      response: safeResponse,
     });
 
     return {
