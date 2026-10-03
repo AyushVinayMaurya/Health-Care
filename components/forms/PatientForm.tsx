@@ -41,15 +41,21 @@ export const PatientForm = () => {
         phone: values.phone,
       };
 
-      const newUser = await createUser(user);
+      const result = await createUser(user);
 
-      if (!newUser || !newUser.$id) {
-        console.error("INVALID USER RETURNED:", newUser);
-        setErrorMessage("Unable to create your account. Please try again.");
+      if (!result.success) {
+        console.error("USER CREATION ERROR:", result.error);
+        setErrorMessage(result.error);
         return;
       }
 
-      const registerPath = `/patients/${newUser.$id}/register`;
+      if (!result.user.$id) {
+        console.error("INVALID USER RETURNED:", result.user);
+        setErrorMessage("User creation returned an invalid user.");
+        return;
+      }
+
+      const registerPath = `/patients/${result.user.$id}/register`;
       console.log("REDIRECTING TO REGISTER", registerPath);
       router.push(registerPath);
     } catch (error) {

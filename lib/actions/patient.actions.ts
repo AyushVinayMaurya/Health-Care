@@ -42,7 +42,7 @@ export const createUser = async (user: CreateUserParams) => {
       email: newuser.email,
     });
 
-    return toClientUser(newuser);
+    return { success: true as const, user: toClientUser(newuser) };
   } catch (error: any) {
     // Check if user already exists
     if (error?.code === 409) {
@@ -53,21 +53,41 @@ export const createUser = async (user: CreateUserParams) => {
 
         const matchedUser = existingUser.users[0];
         if (matchedUser) {
-          return toClientUser(matchedUser);
+          return { success: true as const, user: toClientUser(matchedUser) };
         }
       } catch (listError) {
         error = listError;
       }
     }
 
+    const response = error?.response;
+    const safeResponse =
+      typeof response === "string" ||
+      typeof response === "number" ||
+      typeof response === "boolean"
+        ? response
+        : response && typeof response === "object"
+          ? {
+              code: response.code,
+              type: response.type,
+              message: response.message,
+            }
+          : undefined;
+    const errorMessage =
+      error instanceof Error ? error.message : String(error);
+
     console.error("CREATE USER ACTUAL ERROR:", {
-      message: error instanceof Error ? error.message : String(error),
+      message: errorMessage,
       name: error instanceof Error ? error.name : undefined,
       code: error?.code,
       type: error?.type,
+      response: safeResponse,
     });
 
-    return null;
+    return {
+      success: false as const,
+      error: errorMessage || "User creation failed",
+    };
   }
 };
 
