@@ -26,12 +26,16 @@ import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-number-input/style.css";
 
 import CustomFormField, { FormFieldType } from "../CustomFormField";
+import EnableNotificationsButton from "../EnableNotificationsButton";
 import { FileUploader } from "../FileUploader";
 import SubmitButton from "../SubmitButton";
 
 const RegisterForm = ({ user }: { user: User }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [registeredPatientId, setRegisteredPatientId] = useState<string | null>(
+    null
+  );
 
   const form = useForm<
     z.input<typeof PatientFormValidation>,
@@ -95,7 +99,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       const newPatient = await registerPatient(patient);
 
       if (newPatient) {
-        router.push(`/patients/${user.$id}/new-appointment`);
+        setRegisteredPatientId(newPatient.$id);
       }
     } catch (error) {
       console.log(error);
@@ -103,6 +107,30 @@ const RegisterForm = ({ user }: { user: User }) => {
 
     setIsLoading(false);
   };
+
+  if (registeredPatientId) {
+    return (
+      <div className="flex flex-col items-start gap-6">
+        <section className="space-y-3">
+          <h1 className="header">Registration complete</h1>
+          <p className="text-dark-700">
+            Enable notifications for appointment updates, or continue without
+            enabling them.
+          </p>
+        </section>
+
+        <EnableNotificationsButton patientId={registeredPatientId} />
+
+        <button
+          type="button"
+          onClick={() => router.push(`/patients/${user.$id}/new-appointment`)}
+          className="rounded-md border border-dark-500 px-4 py-2"
+        >
+          Continue to Appointments
+        </button>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
