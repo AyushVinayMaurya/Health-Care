@@ -19,9 +19,7 @@ import {
   PatientFormDefaultValues,
 } from "@/constants";
 
-import { registerPatient, saveFCMToken } from "@/lib/actions/patient.actions";
-
-import { requestNotificationPermission } from "@/lib/firebase-messaging";
+import { registerPatient } from "@/lib/actions/patient.actions";
 import { PatientFormValidation } from "@/lib/validation";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -97,25 +95,6 @@ const RegisterForm = ({ user }: { user: User }) => {
       const newPatient = await registerPatient(patient);
 
       if (newPatient) {
-        const token = await requestNotificationPermission();
-
-        if (token) {
-          const savedToken = await saveFCMToken({
-            patientId: newPatient.$id,
-            fcmToken: token,
-          });
-
-          if (savedToken) {
-            alert("Notifications enabled and FCM token saved successfully!");
-          } else {
-            alert(
-              "Notification permission granted, but token could not be saved."
-            );
-          }
-        } else {
-          alert("Notification permission was not granted.");
-        }
-
         router.push(`/patients/${user.$id}/new-appointment`);
       }
     } catch (error) {

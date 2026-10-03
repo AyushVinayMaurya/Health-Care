@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import EnableNotificationsButton from "@/components/EnableNotificationsButton";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { getPatient } from "@/lib/actions/patient.actions";
 
@@ -24,6 +25,12 @@ const Appointment = async ({ params }: SearchParamProps) => {
             userId={userId}
             type="create"
           />
+
+          {patient?.$id && (
+            <div className="mt-6">
+              <EnableNotificationsButton patientId={patient.$id} />
+            </div>
+          )}
 
           <p className="copyright mt-10 py-12">© 2026 CarePluse</p>
         </div>
