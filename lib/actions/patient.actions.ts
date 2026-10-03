@@ -16,6 +16,18 @@ import { parseStringify } from "../utils";
 
 // CREATE USER
 export const createUser = async (user: CreateUserParams) => {
+  const toClientUser = (appwriteUser: {
+    $id: string;
+    name: string;
+    email: string;
+    phone: string | null;
+  }) => ({
+    $id: appwriteUser.$id,
+    name: appwriteUser.name,
+    email: appwriteUser.email,
+    phone: appwriteUser.phone,
+  });
+
   try {
     const newuser = await users.create(
       ID.unique(),
@@ -25,7 +37,12 @@ export const createUser = async (user: CreateUserParams) => {
       user.name
     );
 
-    return parseStringify(newuser);
+    console.log("CREATE USER SUCCESS:", {
+      id: newuser.$id,
+      email: newuser.email,
+    });
+
+    return toClientUser(newuser);
   } catch (error: any) {
     // Check if user already exists
     if (error?.code === 409) {
@@ -34,20 +51,23 @@ export const createUser = async (user: CreateUserParams) => {
           Query.equal("email", [user.email]),
         ]);
 
-        if (existingUser.users.length > 0) {
-          return parseStringify(existingUser.users[0]);
+        const matchedUser = existingUser.users[0];
+        if (matchedUser) {
+          return toClientUser(matchedUser);
         }
       } catch (listError) {
-        console.error(
-          "An error occurred while finding existing user:",
-          listError
-        );
+        error = listError;
       }
     }
 
-    console.error("An error occurred while creating a new user:", error);
+    console.error("CREATE USER ACTUAL ERROR:", {
+      message: error instanceof Error ? error.message : String(error),
+      name: error instanceof Error ? error.name : undefined,
+      code: error?.code,
+      type: error?.type,
+    });
 
-    throw error;
+    return null;
   }
 };
 

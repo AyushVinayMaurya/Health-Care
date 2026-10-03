@@ -41,10 +41,11 @@ export const PatientForm = () => {
       };
 
       const newUser = await createUser(user);
-      console.log("USER CREATED", newUser);
 
-      if (!newUser) {
-        throw new Error("User creation returned no user.");
+      if (!newUser || !newUser.$id) {
+        console.error("INVALID USER RETURNED:", newUser);
+        setErrorMessage("Unable to create your account. Please try again.");
+        return;
       }
 
       const registerPath = `/patients/${newUser.$id}/register`;
