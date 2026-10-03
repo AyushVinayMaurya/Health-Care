@@ -37,6 +37,8 @@ interface CustomProps<TFieldValues extends FieldValues> {
   placeholder?: string;
   iconSrc?: string;
   iconAlt?: string;
+  inputType?: React.HTMLInputTypeAttribute;
+  autoComplete?: string;
   disabled?: boolean;
   dateFormat?: string;
   showTimeSelect?: boolean;
@@ -68,6 +70,8 @@ const RenderInput = <TFieldValues extends FieldValues>({
           <FormControl>
             <Input
               placeholder={props.placeholder}
+              type={props.inputType}
+              autoComplete={props.autoComplete}
               {...field}
               className="shad-input border-0"
             />

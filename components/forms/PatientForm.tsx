@@ -29,6 +29,7 @@ export const PatientForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof UserFormValidation>) => {
+    console.log("EMAIL VALUE:", values.email);
     console.log("CREATING USER");
     setIsLoading(true);
     setErrorMessage(null);
@@ -63,6 +64,7 @@ export const PatientForm = () => {
     event.preventDefault();
     console.log("GET STARTED CLICKED");
     void form.handleSubmit(onSubmit, (errors) => {
+      console.log("EMAIL VALUE:", form.getValues("email"));
       console.error("GET STARTED VALIDATION FAILED:", errors);
     })(event);
   };
@@ -91,6 +93,8 @@ export const PatientForm = () => {
           name="email"
           label="Email"
           placeholder="johndoe@gmail.com"
+          inputType="email"
+          autoComplete="email"
           iconSrc="/assets/icons/email.svg"
           iconAlt="email"
         />
