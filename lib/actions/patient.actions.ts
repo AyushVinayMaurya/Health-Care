@@ -179,28 +179,3 @@ export const getPatient = async (userId: string) => {
     return null;
   }
 };
-// SAVE FCM TOKEN
-
-export const saveFCMToken = async ({
-  patientId,
-  fcmToken,
-}: {
-  patientId: string;
-  fcmToken: string;
-}) => {
-  try {
-    const updatedPatient = await databases.updateDocument(
-      DATABASE_ID!,
-      PATIENT_COLLECTION_ID!,
-      patientId,
-      {
-        fcmToken,
-      }
-    );
-
-    return parseStringify(updatedPatient);
-  } catch (error) {
-    console.error("Error saving FCM token:", error);
-    return null;
-  }
-};

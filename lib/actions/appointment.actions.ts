@@ -12,9 +12,7 @@ import {
   databases,
 } from "../appwrite.config";
 
-import { sendPushNotification } from "./notification.actions";
-
-import { formatDateTime, parseStringify } from "../utils";
+import { parseStringify } from "../utils";
 
 // CREATE APPOINTMENT
 export const createAppointment = async (
@@ -91,61 +89,12 @@ export const getRecentAppointmentList = async () => {
   }
 };
 
-// SEND PUSH NOTIFICATION TO PATIENT
-const sendPatientPushNotification = async ({
-  userId,
-  title,
-  body,
-}: {
-  userId: string;
-  title: string;
-  body: string;
-}) => {
-  try {
-    const patients = await databases.listDocuments(
-      DATABASE_ID!,
-      PATIENT_COLLECTION_ID!,
-      [Query.equal("userId", userId)]
-    );
-
-    if (patients.documents.length === 0) {
-      console.log("Patient not found:", userId);
-      return false;
-    }
-
-    const patient = patients.documents[0];
-
-    if (!patient.fcmToken) {
-      console.log("Patient does not have an FCM token.");
-      return false;
-    }
-
-    await sendPushNotification({
-      token: patient.fcmToken,
-      title,
-      body,
-    });
-
-    console.log("Push notification sent successfully.");
-
-    return true;
-  } catch (error) {
-    console.error("An error occurred while sending push notification:", error);
-
-    return false;
-  }
-};
-
 // UPDATE APPOINTMENT
 export const updateAppointment = async ({
   appointmentId,
-  userId,
-  timeZone,
   appointment,
-  type,
 }: UpdateAppointmentParams) => {
   try {
-    // Update appointment in Appwrite
     const updatedAppointment = await databases.updateDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
@@ -155,31 +104,6 @@ export const updateAppointment = async ({
 
     if (!updatedAppointment) {
       throw new Error("Appointment could not be updated.");
-    }
-
-    const appointmentDateTime = formatDateTime(
-      updatedAppointment.schedule!,
-      timeZone
-    ).dateTime;
-
-    // APPOINTMENT CONFIRMED
-    if (type === "schedule") {
-      await sendPatientPushNotification({
-        userId,
-        title: "Appointment Confirmed 🏥",
-        body: `Your appointment is confirmed for ${appointmentDateTime} with Dr. ${updatedAppointment.primaryPhysician}.`,
-      });
-    }
-
-    // APPOINTMENT CANCELLED
-    if (type === "cancel") {
-      await sendPatientPushNotification({
-        userId,
-        title: "Appointment Cancelled ❌",
-        body: `Your appointment for ${appointmentDateTime} has been cancelled. Reason: ${
-          updatedAppointment.cancellationReason || "No reason provided"
-        }.`,
-      });
     }
 
     revalidatePath("/admin");
